@@ -13,6 +13,21 @@ products_in_category:
   path: /api/category/products/{id}
   controller: App\Controller\ApiCategoryController::getProductsInCategory
   methods: GET
+  format: json
+  requirements:
+    id: '\d+'
+    _format: json
+  defaults:
+    id: 1
+
+get_product_by_id:
+  path: /api/product/{id}
+  controller: App\Controller\ApiProductController::getById
+  methods: GET
+  format: json
+  requirements:
+    id: '\d+'
+    _format: json
 
 create_category:
   path: /api/category/create

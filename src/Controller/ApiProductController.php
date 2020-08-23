@@ -6,7 +6,9 @@ use App\Entity\Category;
 use App\Entity\Product;
 use App\Repository\CategoryRepository;
 use App\Repository\ProductRepository;
+use Doctrine\ORM\EntityNotFoundException;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
@@ -119,7 +121,7 @@ class ApiProductController extends AbstractController
             $result['errors'][] = 'Failed to create product';
         }
 
-        $response = new Response();
+        $response = new JsonResponse();
         $response->setStatusCode(200);
 
         $response->setContent(json_encode($result));
@@ -169,10 +171,18 @@ class ApiProductController extends AbstractController
 
         $products = $this->productRepository->getAll($offset, $sortBy, $sort);
 
+        /**
+         * Если товары не найдены, возвращаем пустой массив
+         * Так планировалось...
+         */
         $result = [
             'success' => true,
             'payload' => []
         ];
+
+        /**
+         * Эту логику надо бы вынести в отдельный метод, но я катастрофически не успеваю
+         */
         foreach ($products as $key => $product) {
             $result['payload'][] = [
                 'id' => $product->getId(),
@@ -186,6 +196,39 @@ class ApiProductController extends AbstractController
             ];
         }
 
-        return new Response(json_encode($result));
+        return new JsonResponse($result);
+    }
+
+    /**
+     * @param string $id
+     * @return Response
+     */
+    public function getById($id): Response
+    {
+        try {
+            $product = $this->productRepository->getById((int) $id);
+            $result['success'] = true;
+
+            /**
+             * По неясной для меня причине, именно в данном методе вызов $product->getCategoriesIds()
+             * приводит к 502 ошибке, хотя в методе getList отрабатывает нормально
+             */
+            $result['payload'][] = [
+                'id' => $product->getId(),
+                'name' => $product->getName(),
+                'description' => $product->getDescription(),
+                'dateCreate' => $product->getDateCreate(),
+                'price' => $product->getPrice(),
+                'quantity' => $product->getStock(),
+                'externalId' => $product->getExternalId(),
+//                'categories' => $product->getCategoriesIds()
+            ];
+
+        } catch (EntityNotFoundException $e) {
+            $result['success'] = false;
+            $result['error'][] = $e->getMessage();
+        }
+
+        return new JsonResponse($result);
     }
 }
