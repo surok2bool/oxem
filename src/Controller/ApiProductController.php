@@ -182,7 +182,7 @@ class ApiProductController extends AbstractController
                 'price' => $product->getPrice(),
                 'quantity' => $product->getStock(),
                 'externalId' => $product->getExternalId(),
-                'categories' => $this->getCategoriesIds($product)
+                'categories' => $product->getCategoriesIds()
             ];
 
 
@@ -191,19 +191,5 @@ class ApiProductController extends AbstractController
         $response = new Response(json_encode($result));
 
         return $response;
-    }
-
-    /**
-     * @param Product $product
-     * @return integer[]
-     * @throws \Exception
-     */
-    private function getCategoriesIds(Product $product): array
-    {
-        $categories = [];
-        foreach ($product->getCategories()->getIterator() as $category) {
-            $categories[] = $category->getId();
-        }
-        return $categories;
     }
 }
