@@ -3,6 +3,7 @@
 namespace App\Repository;
 
 use App\Entity\Category;
+use App\Entity\Product;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\ORM\EntityNotFoundException;
 use Doctrine\Persistence\ManagerRegistry;
@@ -38,6 +39,22 @@ class CategoryRepository extends ServiceEntityRepository
             ;
 
         return $result;
+    }
+
+    /**
+     * @param int $id
+     * @return Category|null
+     * @throws EntityNotFoundException
+     */
+    public function findById(int $id): ?Category
+    {
+        $product = $this->find($id);
+
+        if (is_null($product)) {
+            throw new EntityNotFoundException('Category not found');
+        }
+
+        return $product;
     }
 
     // /**

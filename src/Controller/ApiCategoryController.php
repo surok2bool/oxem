@@ -7,6 +7,7 @@ use App\Entity\Product;
 use App\Repository\CategoryRepository;
 use Doctrine\ORM\EntityNotFoundException;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
@@ -96,7 +97,7 @@ class ApiCategoryController extends AbstractController
             $result['errors'][] = 'Failed to create category';
         }
 
-        $response = new Response();
+        $response = new JsonResponse();
         $response->setStatusCode(200);
 
         $response->setContent(json_encode($result));
@@ -120,36 +121,47 @@ class ApiCategoryController extends AbstractController
     }
 
     /**
-     * @param Request $request
      * @param string $id
      * @return Response
      * @throws \Exception
      */
-    public function getProductsInCategory(Request $request, string $id): Response
+    public function getProductsInCategory(string $id): Response
     {
-        $category = $this->categoryRepository->find($id);
-        $products = $category->getProducts();
         $result = [
-            'success' => true,
-            'payload' => []
+            'success' => false,
         ];
-        /**
-         * @var Product $product
-         */
-        foreach ($products->getIterator() as $product) {
-                $result['payload'][] = [
-                    'id' => $product->getId(),
-                    'name' => $product->getName(),
-                    'description' => $product->getDescription(),
-                    'dateCreate' => $product->getDateCreate(),
-                    'price' => $product->getPrice(),
-                    'quantity' => $product->getStock(),
-                    'externalId' => $product->getExternalId(),
-                    'categories' => $product->getCategoriesIds()
-                ];
 
+        try {
+            $category = $this->categoryRepository->findById($id);
+            $products = $category->getProducts();
+
+            if (!$products->isEmpty()) {
+                $result['success'] = true;
+                /**
+                 * @var Product $product
+                 */
+                foreach ($products->getIterator() as $product) {
+                    $result['payload'][] = [
+                        'id' => $product->getId(),
+                        'name' => $product->getName(),
+                        'description' => $product->getDescription(),
+                        'dateCreate' => $product->getDateCreate(),
+                        'price' => $product->getPrice(),
+                        'quantity' => $product->getStock(),
+                        'externalId' => $product->getExternalId(),
+                        'categories' => $product->getCategoriesIds()
+                    ];
+                }
+            }
+
+        } catch (EntityNotFoundException $e) {
+            $result['errors'][] = $e->getMessage();
         }
 
-        return new Response(json_encode($result));
+
+        $response = new JsonResponse();
+        $response->setContent(json_encode($result));
+
+        return $response;
     }
 }
