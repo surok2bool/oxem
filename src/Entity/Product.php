@@ -231,49 +231,4 @@ class Product
 
         return $this;
     }
-
-    /**
-     * На вход принимаем массив id категорий, проверяем, существует ли указанная категория
-     * @param integer[] $categoriesIds
-     */
-    public function setCategories(array $categoriesIds)
-    {
-//        throw new EntityNotFoundException('Category not found');
-    }
-
-    /**
-     * Логику установки полей продукта хотелось собарть в одном месте и не размазывать по разным участкам кода.
-     * Намеренно не использую тут сеттеры, а устанавливаю каждое свойства руками, в данном случае нахожу это более
-     * удобным, а сеттеры иметь надо, поскольку всегда могут пригодиться в другом месте
-     *
-     * @param array $fields
-     */
-    public function setProductData(array $fields): void
-    {
-        $this->name = $fields['name'] ?? '';
-        $this->description = $fields['description'] ?? '';
-
-        $this->externalId = $fields['externalId'] ?? '';
-
-        /**
-         * Для цены используется тип float, для большего удобства пользования предположим, что
-         * пользователь может передать цену как строку, поэтому сначала попытаемся привести значение
-         * к float, в случае неудачи - проставим цену как 0.
-         */
-        if (!empty($fields['price']) && settype($fields['price'], 'float')) {
-            $this->price = round($fields['price'], 2);
-        } else {
-            $this->price = 0.00;
-        }
-
-        $this->stock = (!empty($fields['stock']) && settype($fields['stock'], 'integer'))
-            ? $fields['stock']
-            : 0;
-
-        if (!empty($fields['categories']) && is_array($fields['categories'])) {
-            $this->setCategories($fields['categories']);
-        }
-
-        $this->setDateCreate();
-    }
 }

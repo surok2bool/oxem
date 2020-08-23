@@ -2,7 +2,10 @@
 
 namespace App\Controller;
 
+use App\Entity\Category;
 use App\Entity\Product;
+use App\Repository\CategoryRepository;
+use App\Repository\ProductRepository;
 use Doctrine\ORM\EntityNotFoundException;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -16,14 +19,31 @@ class ApiProductController extends AbstractController
      */
     private $validator;
 
+    /**
+     * @var ProductRepository $productRepository
+     */
+    private $productRepository;
+
+    /**
+     * @var CategoryRepository $categoryRepository
+     */
+    private $categoryRepository;
 
     /**
      * ApiController constructor.
      * @param ValidatorInterface $validator
+     * @param ProductRepository $productRepository
+     * @param CategoryRepository $categoryRepository
      */
-    public function __construct(ValidatorInterface $validator)
+    public function __construct(
+        ValidatorInterface $validator,
+        ProductRepository $productRepository,
+        CategoryRepository $categoryRepository
+    )
     {
         $this->validator = $validator;
+        $this->productRepository = $productRepository;
+        $this->categoryRepository = $categoryRepository;
     }
 
     /**
@@ -45,11 +65,42 @@ class ApiProductController extends AbstractController
             'success' => false
         ];
 
-        try {
-            $product->setProductData($data);
-        } catch (EntityNotFoundException $e) {
-            $result['errors'][] = $e->getMessage();
+        /**
+         * Если переданы id несуществующих категорий, проставляем только существующие и не уведомляем пользователя
+         */
+        if (!empty($data['categories']) && is_array($data['categories'])) {
+            $categories = $this->getCategories($data['categories']);
+            foreach ($categories as $category) {
+                $product->addCategory($category);
+            }
         }
+
+        $name = $data['name'] ?? '';
+        $description = $data['description'] ?? null;
+        $externalId = $data['externalId'] ?? null;
+
+        $product->setName($name);
+
+        $product->setDescription($description);
+        $product->setExternalId($externalId);
+
+        /**
+         * Для цены используется тип float, для большего удобства пользования предположим, что
+         * пользователь может передать цену как строку, поэтому сначала попытаемся привести значение
+         * к float, в случае неудачи - проставим цену как 0.
+         */
+        if (!empty($data['price']) && settype($data['price'], 'float')) {
+            $price = round($data['price'], 2);
+            $product->setPrice($price);
+        } else {
+            $product->setPrice(0.00);
+        }
+
+        $stock = (!empty($data['stock']) && settype($data['stock'], 'integer'))
+            ? $data['stock']
+            : 0;
+        $product->setStock($stock);
+        $product->setDateCreate();
 
         $errors = $this->validator->validate($product);
 
@@ -75,5 +126,14 @@ class ApiProductController extends AbstractController
         $response->setContent(json_encode($result));
 
         return $response;
+    }
+
+    /**
+     * @param array $categoriesIds
+     * @return Category[]
+     */
+    private function getCategories(array $categoriesIds): array
+    {
+        return $this->categoryRepository->findByIds($categoriesIds);
     }
 }

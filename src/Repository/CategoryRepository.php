@@ -4,6 +4,7 @@ namespace App\Repository;
 
 use App\Entity\Category;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\ORM\EntityNotFoundException;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
@@ -17,6 +18,26 @@ class CategoryRepository extends ServiceEntityRepository
     public function __construct(ManagerRegistry $registry)
     {
         parent::__construct($registry, Category::class);
+    }
+
+    /**
+     * Ищем все категории по массиву id
+     *
+     * @param array $ids
+     * @return Category[]
+     */
+    public function findByIds(array $ids): array
+    {
+        $query = $this->createQueryBuilder('c');
+        $result = $query
+            ->add('where', $query->expr()->andX(
+                $query->expr()->in('c.id', $ids)
+            ))
+            ->getQuery()
+            ->getResult()
+            ;
+
+        return $result;
     }
 
     // /**
