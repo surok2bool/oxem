@@ -3,3 +3,9 @@ create_product:
   controller: App\Controller\ApiProductController::createProduct
   methods: POST
   condition:  "request.headers.get('Content-Type') matches '/application\\\\/json/'"
+
+create_category:
+  path: /api/create_category
+  controller: App\Controller\ApiCategoryController::createCategory
+  methods: POST
+  condition:  "request.headers.get('Content-Type') matches '/application\\\\/json/'"

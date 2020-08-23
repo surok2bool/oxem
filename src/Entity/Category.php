@@ -39,16 +39,26 @@ class Category
      */
     private $externalId;
 
+    /**
+     * @return int|null
+     */
     public function getId(): ?int
     {
         return $this->id;
     }
 
+    /**
+     * @return string|null
+     */
     public function getName(): ?string
     {
         return $this->name;
     }
 
+    /**
+     * @param string $name
+     * @return $this
+     */
     public function setName(string $name): self
     {
         $this->name = $name;
@@ -56,11 +66,18 @@ class Category
         return $this;
     }
 
+    /**
+     * @return $this|null
+     */
     public function getParent(): ?self
     {
         return $this->parent;
     }
 
+    /**
+     * @param Category|null $parent
+     * @return $this
+     */
     public function setParent(?self $parent): self
     {
         $this->parent = $parent;
@@ -68,15 +85,31 @@ class Category
         return $this;
     }
 
+    /**
+     * @return string|null
+     */
     public function getExternalId(): ?string
     {
         return $this->externalId;
     }
 
+    /**
+     * @param string|null $externalId
+     * @return $this
+     */
     public function setExternalId(?string $externalId): self
     {
         $this->externalId = $externalId;
 
         return $this;
+    }
+
+    /**
+     * @param array $fields
+     */
+    public function setCategoryData(array $fields): void
+    {
+        $this->name = $fields['name'] ?? '';
+        $this->externalId = $fields['externalId'] ?? '';
     }
 }
