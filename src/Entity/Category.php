@@ -4,6 +4,7 @@ namespace App\Entity;
 
 use App\Repository\CategoryRepository;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @ORM\Entity(repositoryClass=CategoryRepository::class)
@@ -18,6 +19,12 @@ class Category
     private $id;
 
     /**
+     * @Assert\Length(
+     *      min = 3,
+     *      max = 200,
+     *      minMessage = "Name must be at least {{ limit }} characters",
+     *      maxMessage = "Name must be no more than {{ limit }} characters"
+     * )
      * @ORM\Column(type="string", length=200)
      */
     private $name;
@@ -25,7 +32,7 @@ class Category
     /**
      * @ORM\OneToOne(targetEntity=Category::class, cascade={"persist", "remove"})
      */
-    private $parentId;
+    private $parent;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
@@ -49,14 +56,14 @@ class Category
         return $this;
     }
 
-    public function getParentId(): ?self
+    public function getParent(): ?self
     {
-        return $this->parentId;
+        return $this->parent;
     }
 
-    public function setParentId(?self $parentId): self
+    public function setParent(?self $parent): self
     {
-        $this->parentId = $parentId;
+        $this->parent = $parent;
 
         return $this;
     }
