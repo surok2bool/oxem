@@ -5,8 +5,10 @@ namespace App\Controller;
 use App\Entity\Category;
 use App\Entity\Product;
 use App\Repository\CategoryRepository;
+use Doctrine\DBAL\Exception\ForeignKeyConstraintViolationException;
 use Doctrine\ORM\EntityNotFoundException;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\DependencyInjection\Compiler\ResolveBindingsPass;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -187,6 +189,36 @@ class ApiCategoryController extends AbstractController
                     'externalId' => $category->getExternalId(),
                 ];
             }
+        }
+
+        return new JsonResponse($result);
+    }
+
+    /**
+     * @param string $id
+     * @return Response
+     */
+    public function delete($id): Response
+    {
+        $result = [
+            'success' => false
+        ];
+
+        try {
+            $product = $this->categoryRepository->findById((int) $id);
+            $entityManager = $this->getDoctrine()->getManager();
+            $entityManager->remove($product);
+            $entityManager->flush();
+            $result['success'] = true;
+        } catch (EntityNotFoundException $e) {
+            /**
+             * Можно не обрабатывать, поскольку объект все равно хотят удалить
+             */
+        } catch (ForeignKeyConstraintViolationException $ex) {
+            /**
+             * Тут перехватываем исключение, если удаляемая категория является родительской для другой
+             */
+            $result['error'][] = 'Данная категория является родительской и не может быть удалена';
         }
 
         return new JsonResponse($result);

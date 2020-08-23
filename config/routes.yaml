@@ -44,3 +44,8 @@ get_categories:
   path: /api/category/get_all
   controller: App\Controller\ApiCategoryController::getAll
   methods: GET
+
+delete_category:
+  path: /api/category/delete/{id}
+  controller: App\Controller\ApiCategoryController::delete
+  methods: DELETE
