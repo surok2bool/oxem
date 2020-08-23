@@ -9,6 +9,11 @@ product_list:
   controller: App\Controller\ApiProductController::getList
   methods: GET
 
+products_in_category:
+  path: /api/category/products/{id}
+  controller: App\Controller\ApiCategoryController::getProductsInCategory
+  methods: GET
+
 create_category:
   path: /api/category/create
   controller: App\Controller\ApiCategoryController::createCategory

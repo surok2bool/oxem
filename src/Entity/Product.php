@@ -57,22 +57,20 @@ class Product
     private $stock;
 
     /**
-     * @ORM\ManyToMany(targetEntity=Category::class)
-     */
-    private $categories;
-
-    /**
      * @ORM\Column(type="string", length=255, nullable=true)
      */
     private $externalId;
 
     /**
-     * Product constructor.
+     * @ORM\ManyToMany(targetEntity=Category::class, inversedBy="products")
      */
+    private $categories;
+
     public function __construct()
     {
         $this->categories = new ArrayCollection();
     }
+
 
     /**
      * @return int|null
@@ -178,40 +176,6 @@ class Product
     }
 
     /**
-     * @return Collection|Category[]
-     */
-    public function getCategories(): Collection
-    {
-        return $this->categories;
-    }
-
-    /**
-     * @param Category $category
-     * @return $this
-     */
-    public function addCategory(Category $category): self
-    {
-        if (!$this->categories->contains($category)) {
-            $this->categories[] = $category;
-        }
-
-        return $this;
-    }
-
-    /**
-     * @param Category $category
-     * @return $this
-     */
-    public function removeCategory(Category $category): self
-    {
-        if ($this->categories->contains($category)) {
-            $this->categories->removeElement($category);
-        }
-
-        return $this;
-    }
-
-    /**
      * @return string|null
      */
     public function getExternalId(): ?string
@@ -230,5 +194,45 @@ class Product
         $this->externalId = $externalId;
 
         return $this;
+    }
+
+    /**
+     * @return Collection|Category[]
+     */
+    public function getCategories(): Collection
+    {
+        return $this->categories;
+    }
+
+    public function addCategory(Category $category): self
+    {
+        if (!$this->categories->contains($category)) {
+            $this->categories[] = $category;
+        }
+
+        return $this;
+    }
+
+    public function removeCategory(Category $category): self
+    {
+        if ($this->categories->contains($category)) {
+            $this->categories->removeElement($category);
+        }
+
+        return $this;
+    }
+
+    /**
+     * @param Product $product
+     * @return integer[]
+     * @throws \Exception
+     */
+    public function getCategoriesIds(): array
+    {
+        $categories = [];
+        foreach ($this->getCategories()->getIterator() as $category) {
+            $categories[] = $category->getId();
+        }
+        return $categories;
     }
 }

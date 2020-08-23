@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Entity\Category;
+use App\Entity\Product;
 use App\Repository\CategoryRepository;
 use Doctrine\ORM\EntityNotFoundException;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -116,5 +117,34 @@ class ApiCategoryController extends AbstractController
             throw new EntityNotFoundException('Parent category not found');
         }
         return $parentCategory;
+    }
+
+    public function getProductsInCategory(Request $request, string $id)
+    {
+        $category = $this->categoryRepository->find($id);
+        $products = $category->getProducts();
+        $result = [
+            'success' => true,
+            'payload' => []
+        ];
+        /**
+         * @var Product $product
+         */
+        foreach ($products->getIterator() as $product) {
+                $result['payload'][] = [
+                    'id' => $product->getId(),
+                    'name' => $product->getName(),
+                    'description' => $product->getDescription(),
+                    'dateCreate' => $product->getDateCreate(),
+                    'price' => $product->getPrice(),
+                    'quantity' => $product->getStock(),
+                    'externalId' => $product->getExternalId(),
+                    'categories' => $product->getCategoriesIds()
+                ];
+
+        }
+        $response = new Response(json_encode($result));
+
+        return $response;
     }
 }
