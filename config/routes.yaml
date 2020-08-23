@@ -29,6 +29,11 @@ get_product_by_id:
     id: '\d+'
     _format: json
 
+delete_product:
+  path: /api/product/delete/{id}
+  controller: App\Controller\ApiProductController::deleteProduct
+  methods: DELETE
+
 create_category:
   path: /api/category/create
   controller: App\Controller\ApiCategoryController::createCategory

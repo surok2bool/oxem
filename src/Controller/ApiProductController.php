@@ -231,4 +231,28 @@ class ApiProductController extends AbstractController
 
         return new JsonResponse($result);
     }
+
+    /**
+     * @param string $id
+     * @return JsonResponse
+     */
+    public function deleteProduct($id): JsonResponse
+    {
+        $result = [
+            'success' => true
+        ];
+
+        try {
+            $product = $this->productRepository->getById((int) $id);
+            $entityManager = $this->getDoctrine()->getManager();
+            $entityManager->remove($product);
+            $entityManager->flush();
+        } catch (EntityNotFoundException $e) {
+            /**
+             * Можно не обрабатывать, поскольку объект все равно хотят удалить
+             */
+        }
+
+        return new JsonResponse($result);
+    }
 }
