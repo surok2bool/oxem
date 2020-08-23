@@ -47,13 +47,30 @@ class CategoryRepository extends ServiceEntityRepository
      */
     public function findById(int $id): ?Category
     {
-        $product = $this->find($id);
+        $category = $this->find($id);
 
-        if (is_null($product)) {
+        if (is_null($category)) {
             throw new EntityNotFoundException('Category not found');
         }
 
-        return $product;
+        return $category;
+    }
+
+    /**
+     * @param array $ids
+     * @return Category[]
+     */
+    public function findAllByExternalIds(array $ids): array
+    {
+        $query = $this->createQueryBuilder('c');
+        $result = $query
+            ->add('where', $query->expr()->andX(
+                $query->expr()->in('c.externalId', $ids)
+            ))
+            ->getQuery()
+            ->getResult();
+
+        return $result;
     }
 
     // /**
