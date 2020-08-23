@@ -164,4 +164,31 @@ class ApiCategoryController extends AbstractController
 
         return $response;
     }
+
+    /**
+     * @return Response
+     */
+    public function getAll(): Response
+    {
+        $result = [
+            'success' => false
+        ];
+
+        $categories = $this->categoryRepository->findAll();
+
+        if (empty($categories)) {
+            $result['error'][] = 'Categories not found';
+        } else {
+            $result['success'] = true;
+            foreach ($categories as $category) {
+                $result['payload'][] = [
+                    'id' => $category->getId(),
+                    'name' => $category->getName(),
+                    'externalId' => $category->getExternalId(),
+                ];
+            }
+        }
+
+        return new JsonResponse($result);
+    }
 }
