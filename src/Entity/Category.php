@@ -30,7 +30,7 @@ class Category
     private $name;
 
     /**
-     * @ORM\OneToOne(targetEntity=Category::class, cascade={"persist", "remove"})
+     * @ORM\ManyToOne(targetEntity="Category", cascade={"persist"}, fetch="EAGER")
      */
     private $parent;
 
@@ -102,14 +102,5 @@ class Category
         $this->externalId = $externalId;
 
         return $this;
-    }
-
-    /**
-     * @param array $fields
-     */
-    public function setCategoryData(array $fields): void
-    {
-        $this->name = $fields['name'] ?? '';
-        $this->externalId = $fields['externalId'] ?? '';
     }
 }

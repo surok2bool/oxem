@@ -52,11 +52,11 @@ class ApiCategoryController extends AbstractController
             'success' => false
         ];
 
-        /**
-         * Возможно, это не лучшая идея - размазывать так логику установки полей объекта (сначала проставить
-         * одни поля, а потом отдельно установить другое поле. Не уверен, как лучше тут поступить.
-         */
-        $category->setCategoryData($data);
+        $name = $data['name'] ?? '';
+        $externalId = $data['externalId'] ?? '';
+
+        $category->setName($name);
+        $category->setExternalId($externalId);
 
         if (!empty($data['parentId']) && is_int($data['parentId'])) {
             try {
