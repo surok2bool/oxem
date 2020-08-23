@@ -143,8 +143,7 @@ class ApiCategoryController extends AbstractController
                 ];
 
         }
-        $response = new Response(json_encode($result));
 
-        return $response;
+        return new Response(json_encode($result));
     }
 }

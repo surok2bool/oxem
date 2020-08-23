@@ -184,12 +184,8 @@ class ApiProductController extends AbstractController
                 'externalId' => $product->getExternalId(),
                 'categories' => $product->getCategoriesIds()
             ];
-
-
         }
 
-        $response = new Response(json_encode($result));
-
-        return $response;
+        return new Response(json_encode($result));
     }
 }
