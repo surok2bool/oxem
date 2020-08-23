@@ -19,6 +19,22 @@ class ProductRepository extends ServiceEntityRepository
         parent::__construct($registry, Product::class);
     }
 
+    /**
+     * @param int $offset
+     * @param string $sortBy
+     * @param string $sort
+     * @return Product[]
+     */
+    public function getAll(int $offset, string $sortBy, string $sort): array
+    {
+        return $this->createQueryBuilder('p')
+            ->orderBy('p.' . $sortBy, $sort)
+            ->setMaxResults(50)
+            ->setFirstResult($offset)
+            ->getQuery()
+            ->getResult();
+    }
+
     // /**
     //  * @return Product[] Returns an array of Product objects
     //  */
@@ -28,7 +44,7 @@ class ProductRepository extends ServiceEntityRepository
         return $this->createQueryBuilder('p')
             ->andWhere('p.exampleField = :val')
             ->setParameter('val', $value)
-            ->orderBy('p.id', 'ASC')
+
             ->setMaxResults(10)
             ->getQuery()
             ->getResult()

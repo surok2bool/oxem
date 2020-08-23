@@ -96,8 +96,8 @@ class ApiProductController extends AbstractController
             $product->setPrice(0.00);
         }
 
-        $stock = (!empty($data['stock']) && settype($data['stock'], 'integer'))
-            ? $data['stock']
+        $stock = (!empty($data['quantity']) && settype($data['quantity'], 'integer'))
+            ? $data['quantity']
             : 0;
         $product->setStock($stock);
         $product->setDateCreate();
@@ -135,5 +135,71 @@ class ApiProductController extends AbstractController
     private function getCategories(array $categoriesIds): array
     {
         return $this->categoryRepository->findByIds($categoriesIds);
+    }
+
+    public function getList(Request $request)
+    {
+        $offset = (int) $request->get('offset');
+
+        switch ($request->get('sortBy')) {
+            case 'dateCreate':
+                $sortBy = 'dateCreate';
+                break;
+            case 'price':
+                $sortBy = 'price';
+                break;
+            default:
+                $sortBy = 'dateCreate';
+        }
+
+        switch ($request->get('sort')) {
+            case 'ASC':
+                $sort = 'ASC';
+                break;
+            case 'DESC':
+                $sort = 'DESC';
+                break;
+            default:
+                $sort = 'DESC';
+        }
+
+        $products = $this->productRepository->getAll($offset, $sortBy, $sort);
+
+        $result = [
+            'success' => true,
+            'payload' => []
+        ];
+        foreach ($products as $key => $product) {
+            $result['payload'][] = [
+                'id' => $product->getId(),
+                'name' => $product->getName(),
+                'description' => $product->getDescription(),
+                'dateCreate' => $product->getDateCreate(),
+                'price' => $product->getPrice(),
+                'quantity' => $product->getStock(),
+                'externalId' => $product->getExternalId(),
+                'categories' => $this->getCategoriesIds($product)
+            ];
+
+
+        }
+
+        $response = new Response(json_encode($result));
+
+        return $response;
+    }
+
+    /**
+     * @param Product $product
+     * @return integer[]
+     * @throws \Exception
+     */
+    private function getCategoriesIds(Product $product): array
+    {
+        $categories = [];
+        foreach ($product->getCategories()->getIterator() as $category) {
+            $categories[] = $category->getId();
+        }
+        return $categories;
     }
 }

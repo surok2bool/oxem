@@ -4,6 +4,11 @@ create_product:
   methods: POST
   condition:  "request.headers.get('Content-Type') matches '/application\\\\/json/'"
 
+product_list:
+  path: /api/product/list
+  controller: App\Controller\ApiProductController::getList
+  methods: GET
+
 create_category:
   path: /api/category/create
   controller: App\Controller\ApiCategoryController::createCategory
