@@ -6,7 +6,6 @@ use App\Entity\Category;
 use App\Entity\Product;
 use App\Repository\CategoryRepository;
 use App\Repository\ProductRepository;
-use Doctrine\ORM\EntityNotFoundException;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -137,7 +136,12 @@ class ApiProductController extends AbstractController
         return $this->categoryRepository->findByIds($categoriesIds);
     }
 
-    public function getList(Request $request)
+    /**
+     * @param Request $request
+     * @return Response
+     * @throws \Exception
+     */
+    public function getList(Request $request): Response
     {
         $offset = (int) $request->get('offset');
 
