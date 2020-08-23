@@ -119,7 +119,13 @@ class ApiCategoryController extends AbstractController
         return $parentCategory;
     }
 
-    public function getProductsInCategory(Request $request, string $id)
+    /**
+     * @param Request $request
+     * @param string $id
+     * @return Response
+     * @throws \Exception
+     */
+    public function getProductsInCategory(Request $request, string $id): Response
     {
         $category = $this->categoryRepository->find($id);
         $products = $category->getProducts();
