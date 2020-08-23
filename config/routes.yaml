@@ -1,4 +1,4 @@
-main:
+create_product:
   path: /api/create_product
   controller: App\Controller\ApiController::createProduct
   methods: POST
